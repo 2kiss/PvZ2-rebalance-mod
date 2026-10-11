@@ -1,7 +1,7 @@
 """Decoders for PvZ2 PTX texture payloads.
 
 Android packs use format 147: ETC1 RGB blocks followed by a separate 8-bit
-alpha plane (width*height bytes). Format 0 is plain RGBA8888 (stored BGRA).
+alpha plane (width*height bytes). Format 0 is plain RGBA8888.
 """
 import numpy as np
 
@@ -78,6 +78,5 @@ def decode_ptx(data, w, h, fmt):
         alpha = np.frombuffer(data[etc_size:etc_size + w * h], dtype=np.uint8).reshape(h, w)
         return np.dstack([rgb, alpha])
     if fmt == 0:
-        bgra = np.frombuffer(data[:w * h * 4], dtype=np.uint8).reshape(h, w, 4)
-        return bgra[..., [2, 1, 0, 3]].copy()
+        return np.frombuffer(data[:w * h * 4], dtype=np.uint8).reshape(h, w, 4).copy()
     raise NotImplementedError("PTX format %d" % fmt)

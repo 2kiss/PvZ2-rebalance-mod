@@ -94,7 +94,8 @@ def _frame(r):
             elif v & 0x4000:
                 ang = r.take("<h") / 1000.0
                 cs, sn = math.cos(ang), math.sin(ang)
-                m["m"] = [cs, -sn, sn, cs]
+                m["m"] = [cs, sn, -sn, cs]
+                m["rot"] = ang
             if v & 0x0800:
                 tx, ty = r.take("<2i")
             else:
