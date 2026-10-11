@@ -1,0 +1,41 @@
+{
+  "app_display_name": "PvZ2 Carnival",
+  "bundle_id": "com.popcap.ios.PvZ2.carnival",
+
+  "coins": {
+    "coin_silver": 15,
+    "coin_gold": 150
+  },
+
+  "plant_prices": {
+    "legendary": 120000,
+    "epic": 75000,
+    "mint": 60000,
+    "rare": 40000
+  },
+
+  "plant_tier_overrides": {
+    "pokra": "epic",
+    "solartomato": "legendary",
+    "escaperoot": "epic"
+  },
+
+  "carnival": {
+    "tab_name": "Night Carnival",
+    "label": "NIGHT CARNIVAL - prices drop every 8 hours!",
+    "title_format": "{name}\r\n-{pct}%  was {old}",
+    "repeat": "Random8Hour",
+    "slots": [
+      {"id": "A", "tiers": ["rare", "mint", "epic", "legendary"], "discounts": [20, 25, 30]},
+      {"id": "B", "tiers": ["rare", "mint", "epic", "legendary"], "discounts": [35, 40, 45]},
+      {"id": "C", "tiers": ["epic", "legendary"], "discounts": [50, 55]},
+      {"id": "D", "tiers": ["legendary"], "discounts": [60, 65, 70]}
+    ]
+  },
+
+  "real_money": {
+    "usd_to_gems": 25,
+    "gem_pack_coins_per_gem": 300,
+    "coin_pack_coins_per_gem": 250
+  }
+}

@@ -1,0 +1,3 @@
+*.ipa
+*.rsb
+__pycache__/
