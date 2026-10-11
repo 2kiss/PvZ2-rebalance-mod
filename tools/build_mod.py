@@ -315,7 +315,16 @@ def build(src_ipa, dst_ipa, cfg):
 
         blob, info = rsg.build(data.encoded())
         rsb.replace_packet(PACKAGE, blob, info)
+        problems = rsb.verify()
+        if problems:
+            raise SystemExit("main.rsb failed integrity check:\n  " + "\n  ".join(problems))
         rsb.save(rsb_path)
+        # Re-read what was written and make sure every file still decodes.
+        check = RSB(rsb_path)
+        for path, raw in check.rsg(PACKAGE).files():
+            if path.upper().endswith(".RTON"):
+                rton.decode(raw)
+        log("main.rsb integrity check passed")
         log("main.rsb rebuilt (%d bytes)" % os.path.getsize(rsb_path))
 
         if os.path.exists(dst_ipa):

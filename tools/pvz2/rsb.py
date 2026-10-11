@@ -216,6 +216,41 @@ class RSB:
                 struct.pack_into("<9I", self.data, io + 128 + 12, *info)
             elif o2 > off:
                 struct.pack_into("<I", self.data, io + 128, o2 + delta)
+        # The packet's autopool tells the game how much memory to allocate for
+        # it: header + part0, and part1. Stale sizes overflow at load time.
+        pool = struct.unpack_from("<I", self.data, self._info_off(idx) + 136)[0]
+        flags, head_len, _, _, p0_size, _, _, _, p1_size = info
+        ap = self.head[19] + pool * self.head[20]
+        struct.pack_into("<II", self.data, ap + 128, head_len + p0_size, p1_size)
+
+    def verify(self):
+        """Cross-check every packet against the tables that describe it."""
+        problems = []
+        end = 0
+        for i, n, off, ln in sorted(self.packets(), key=lambda p: p[2]):
+            if off < end:
+                problems.append("%s overlaps the previous packet" % n)
+            end = off + ln
+            if end > len(self.data):
+                problems.append("%s runs past end of file" % n)
+                continue
+            info = struct.unpack_from("<19I", self.data, self._info_off(i) + 128)
+            head = RSG_HEAD.unpack_from(self.data, off)
+            if head[0] != b"pgsr":
+                problems.append("%s: bad magic" % n)
+                continue
+            hdr = (head[3], head[4], head[5], head[6], head[7], head[7], head[9], head[10], head[11])
+            if hdr != info[3:12]:
+                problems.append("%s: info %s != header %s" % (n, info[3:12], hdr))
+            if head[9] + head[10] > ln and head[11]:
+                problems.append("%s: part1 past packet end" % n)
+            if head[5] + head[6] > ln:
+                problems.append("%s: part0 past packet end" % n)
+            ap = self.head[19] + info[2] * self.head[20]
+            a0, a1 = struct.unpack_from("<II", self.data, ap + 128)
+            if (a0, a1) != (head[4] + head[7], head[11]):
+                problems.append("%s: autopool (%d,%d) != needed (%d,%d)" % (n, a0, a1, head[4] + head[7], head[11]))
+        return problems
 
     def save(self, path):
         open(path, "wb").write(self.data)
